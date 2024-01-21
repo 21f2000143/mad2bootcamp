@@ -24,6 +24,9 @@ class Role(db.Model, RoleMixin):
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
+class Payments(db.Model):
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    amount = db.Column(db.Float(), nullable=False)
 class StudyResource(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String, nullable=False)

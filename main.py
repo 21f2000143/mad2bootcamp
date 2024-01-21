@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_security import SQLAlchemyUserDatastore, Security
-from application.models import db, User, Role
+from application.models import *
 from config import DevelopmentConfig
 from application.resources import api
 from application.sec import datastore
@@ -8,6 +8,7 @@ from application.worker import celery_init_app
 import flask_excel as excel
 from celery.schedules import crontab
 from application.tasks import daily_reminder
+from flask_security import hash_password
 from application.instances import cache
 
 
@@ -15,9 +16,18 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(DevelopmentConfig)
     db.init_app(app)
+    with app.app_context():
+        db.create_all()
     api.init_app(app)
     excel.init_excel(app)
     app.security = Security(app, datastore)
+    with app.app_context():
+        app.security.datastore.find_or_create_role(name="admin", description="Admin")
+        db.session.commit()
+        if not app.security.datastore.find_user(email="test@me.com"):
+            app.security.datastore.create_user(email="test@me.com",
+            password=hash_password("password"), roles=["admin"])
+        db.session.commit()
     cache.init_app(app)
     with app.app_context():
         import application.views

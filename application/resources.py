@@ -57,4 +57,4 @@ class StudyMaterial(Resource):
         return {"message": "Study Resource Created"}
 
 
-api.add_resource(StudyMaterial, '/study_material')
+api.add_resource(StudyMaterial, '/api/study_material')

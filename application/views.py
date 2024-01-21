@@ -1,13 +1,31 @@
 from flask import current_app as app, jsonify, request, render_template, send_file
 from flask_security import auth_required, roles_required
-from werkzeug.security import check_password_hash
+# from werkzeug.security import check_password_hash
 from flask_restful import marshal, fields
 import flask_excel as excel
 from celery.result import AsyncResult
 from .tasks import create_resource_csv
 from .models import User, db, StudyResource
 from .sec import datastore
+from flask_security import verify_password
+from flask_security import hash_password
 
+
+@app.post('/user-login')
+def user_login():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({"message": "email not provided"}), 400
+
+    user = datastore.find_user(email=email)
+
+    if not user:
+        return jsonify({"message": "User Not Found"}), 404
+    if verify_password(data.get('password'), user.password):
+        return jsonify({"token": user.get_auth_token(), "email": user.email, "role": user.roles[0].name})
+    else:
+        return jsonify({"message": "Wrong Password"}), 400
 
 @app.get('/')
 def home():
@@ -34,22 +52,22 @@ def activate_instructor(inst_id):
     return jsonify({"message": "User Activated"})
 
 
-@app.post('/user-login')
-def user_login():
+    
+@app.post('/user-register')
+def user_register():
     data = request.get_json()
     email = data.get('email')
-    if not email:
-        return jsonify({"message": "email not provided"}), 400
+    if app.security.datastore.find_user(email=email):
+        return jsonify({'message': 'Email already registered'}), 400
 
-    user = datastore.find_user(email=email)
-
-    if not user:
-        return jsonify({"message": "User Not Found"}), 404
-
-    if check_password_hash(user.password, data.get("password")):
-        return jsonify({"token": user.get_auth_token(), "email": user.email, "role": user.roles[0].name})
-    else:
-        return jsonify({"message": "Wrong Password"}), 400
+    # Create a new user
+    app.security.datastore.find_or_create_role(
+        name="user", description="User has some restricted privileges"
+    )
+    db.session.commit()
+    app.security.datastore.create_user(email=email,password=hash_password(data.get('password')), roles=["user"])
+    db.session.commit()
+    return jsonify({"message": "User Created"}), 201
 
 
 user_fields = {
