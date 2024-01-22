@@ -62,10 +62,10 @@ def user_register():
 
     # Create a new user
     app.security.datastore.find_or_create_role(
-        name="user", description="User has some restricted privileges"
+        name="stud", description="Stud has some restricted privileges"
     )
     db.session.commit()
-    app.security.datastore.create_user(email=email,password=hash_password(data.get('password')), roles=["user"])
+    app.security.datastore.create_user(email=email,password=hash_password(data.get('password')), roles=["stud"])
     db.session.commit()
     return jsonify({"message": "User Created"}), 201
 

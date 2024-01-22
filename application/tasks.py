@@ -20,7 +20,6 @@ def create_resource_csv():
 
     return filename
 
-
 @shared_task(ignore_result=True)
 def daily_reminder(to, subject):
     users = User.query.filter(User.roles.any(Role.name == 'admin')).all()
