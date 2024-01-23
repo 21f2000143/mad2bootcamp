@@ -2,12 +2,14 @@ import StudentHome from './StudentHome.js'
 import InstructorHome from './InstructorHome.js'
 import AdminHome from './AdminHome.js'
 import StudyResource from './StudyResource.js'
+import CreatorHome from './CreatorHome.js'
 
 export default {
   template: `<div>
   <StudentHome v-if="userRole=='stud'"/>
   <AdminHome v-if="userRole=='admin'" />
   <InstructorHome v-if="userRole=='inst'" />
+  <CreatorHome v-if="userRole=='creator'" />
   <StudyResource v-for="(resource, index) in resources" :key='index' :resource = "resource" />
   </div>`,
 
@@ -24,6 +26,7 @@ export default {
     InstructorHome,
     AdminHome,
     StudyResource,
+    CreatorHome
   },
   async mounted() {
     const res = await fetch('/api/study_material', {

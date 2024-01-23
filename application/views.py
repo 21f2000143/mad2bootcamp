@@ -69,6 +69,22 @@ def user_register():
     db.session.commit()
     return jsonify({"message": "User Created"}), 201
 
+@app.post('/user-creator')
+def user_creator():
+    data = request.get_json()
+    email = data.get('email')
+    if app.security.datastore.find_user(email=email):
+        return jsonify({'message': 'Email already registered'}), 400
+
+    # Create a new user
+    app.security.datastore.find_or_create_role(
+        name="creator", description="creator is able to add songs"
+    )
+    db.session.commit()
+    app.security.datastore.create_user(email=email,password=hash_password(data.get('password')), roles=["creator"])
+    db.session.commit()
+    return jsonify({"message": "User Created"}), 201
+
 
 user_fields = {
     "id": fields.Integer,

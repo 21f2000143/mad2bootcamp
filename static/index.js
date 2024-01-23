@@ -5,6 +5,10 @@ router.beforeEach((to, from, next) => {
 if (to.name !== 'Login' && !localStorage.getItem('auth-token') ? true : false){
   if (to.name === 'Register')
     next()
+  else if (to.name === 'Home')
+    next()
+  else if (to.name === 'Creator')
+    next()
   else{
     next({ name: 'Login' })
   }

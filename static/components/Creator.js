@@ -2,8 +2,8 @@ export default {
   template: `
   <div class='d-flex justify-content-center' style="margin-top: 25vh">
     <div class="mb-3 p-5 bg-light">
-        <h1>Register As Student</h1>
         <div class='text-danger'>*{{error}}</div>
+        <h1>Register As Creator</h1>
         <label for="user-email" class="form-label">Email address</label>
         <input type="email" class="form-control" id="user-email" placeholder="name@example.com" v-model="cred.email">
         <label for="user-password" class="form-label">Password</label>
@@ -30,7 +30,7 @@ export default {
         this.error = 'Passwords do not match'
       }
       else{
-        const res = await fetch('/user-register', {
+        const res = await fetch('/user-creator', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -11,6 +11,15 @@ export default {
         <li class="nav-item">
           <router-link class="nav-link active" aria-current="page" to="/">Home</router-link>
         </li>
+        <li class="nav-item" v-if="role==null">
+          <router-link class="nav-link" aria-current="page" to="/login">Login</router-link>
+        </li>
+        <li class="nav-item" v-if="role==null">
+          <router-link class="nav-link" aria-current="page" to="/register">Register As Student</router-link>
+        </li>
+        <li class="nav-item" v-if="role==null">
+          <router-link class="nav-link" aria-current="page" to="/creator">Register As Creator</router-link>
+        </li>
         <li class="nav-item" v-if="role=='admin'">
           <router-link class="nav-link" to="/users">Users</router-link>
         </li>

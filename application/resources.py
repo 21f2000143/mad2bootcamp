@@ -2,7 +2,7 @@ from flask_restful import Resource, Api, reqparse, fields, marshal
 from flask_security import auth_required, roles_required, current_user
 from flask import jsonify
 from sqlalchemy import or_
-from .models import StudyResource, db
+from .models import *
 from .instances import cache
 
 
@@ -15,6 +15,12 @@ parser.add_argument('description', type=str,
                     help='Description is required and should be a string', required=True)
 parser.add_argument('resource_link', type=str,
                     help='Resource Link is required and should be a string', required=True)
+
+album_parser = reqparse.RequestParser()
+album_parser.add_argument('title', type=str,
+                    help='title is required should be a string', required=True)
+album_parser.add_argument('genre', type=str,
+                    help='genre is required and should be a string', required=True)
 
 
 class Creator(fields.Raw):
@@ -55,6 +61,60 @@ class StudyMaterial(Resource):
         db.session.add(study_resource)
         db.session.commit()
         return {"message": "Study Resource Created"}
+class AllAlbum(Resource):
+    @auth_required("token")
+    @cache.cached(timeout=50)
+    def get(self):
+        albums = Album.query.all()
+        albums_data = []
+        for album in albums:
+            album_data = {
+                'album_id': album.album_id,
+                'title': album.title,
+                'genre': album.genre,
+                'creator_id': album.creator_id,
+                'created': album.created.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            albums_data.append(album_data)
+        return albums_data, 200
 
+    @auth_required("token")
+    @roles_required("creator")
+    def post(self):
+        args = album_parser.parse_args()
+        title = args.get('title')
+        genre = args.get('genre')
+        album = Album(title=title, genre=genre, creator_id=current_user.id)
+        db.session.add(album)
+        db.session.commit()
+        return {"message": "Album Created"}, 201
+    
+    @auth_required("token")
+    @roles_required("creator")
+    def put(self, album_id):
+        album = Album.query.get(album_id)
+        if not album:
+            return {"message": "Album not found"}, 404
+        else:
+            args = album_parser.parse_args()
+            title = args.get('title')
+            genre = args.get('genre')
+            album.title = title
+            album.genre = genre
+            db.session.commit()
+            return {"message": "Album Updated"}, 200
+        
+    @auth_required("token")
+    @roles_required("creator")
+    def delete(self, album_id):
+        album = Album.query.get(album_id)
+        if not album:
+            return {"message": "Album not found"}, 404
+        else:
+            db.session.delete(album)
+            db.session.commit()
+            return {"message": "Album Deleted"}, 200
 
 api.add_resource(StudyMaterial, '/study_material')
+api.add_resource(AllAlbum, '/album', '/album/<int:album_id>')
+
