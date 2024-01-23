@@ -77,20 +77,24 @@ class AllAlbum(Resource):
             }
             albums_data.append(album_data)
         return albums_data, 200
-
-    @auth_required("token")
-    @roles_required("creator")
+    # @auth_required("token")
+    # @roles_required("creator")
     def post(self):
         args = album_parser.parse_args()
         title = args.get('title')
         genre = args.get('genre')
+        if not title or not genre:
+            return {"message": "Title and Genre are required"}, 400
+        if Album.query.filter_by(title=title).first():
+            return {"message": "Album with this title already exists"}, 400
+        
         album = Album(title=title, genre=genre, creator_id=current_user.id)
         db.session.add(album)
         db.session.commit()
         return {"message": "Album Created"}, 201
     
-    @auth_required("token")
-    @roles_required("creator")
+    # @auth_required("token")
+    # @roles_required("creator")
     def put(self, album_id):
         album = Album.query.get(album_id)
         if not album:

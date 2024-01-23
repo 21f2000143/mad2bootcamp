@@ -26,6 +26,9 @@ export default {
         <li class="nav-item" v-if="role=='stud'">
           <router-link class="nav-link" to="/create-resource">Create Resource</router-link>
         </li>
+        <li class="nav-item" v-if="role=='creator'">
+          <router-link class="nav-link" to="/create-album">Add Album</router-link>
+        </li>
         <li class="nav-item" v-if="is_login">
           <button class="nav-link" @click='logout' >logout</button>
         </li>
@@ -40,10 +43,22 @@ export default {
     }
   },
   methods: {
-    logout() {
-      localStorage.removeItem('auth-token')
-      localStorage.removeItem('role')
-      this.$router.push({ path: '/login' })
+    async logout() {
+        const res = await fetch('/user-logout', {
+          headers: {
+            'Authentication-Token': this.authToken,
+            'Content-Type': 'application/json',
+          },
+        })
+        const data = await res.json()
+        console.log(data)
+        if (res.ok) {
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('role')
+          this.$router.push({ path: '/login' })
+        } else {
+          alert(data.message)
+        }
     },
   },
 }

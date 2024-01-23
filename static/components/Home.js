@@ -31,7 +31,7 @@ export default {
   async mounted() {
     const res = await fetch('/api/study_material', {
       headers: {
-        'Authentication-Token': this.authToken,
+        'Authentication-Token': this.authToken
       },
     })
     const data = await res.json()
