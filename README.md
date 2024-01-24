@@ -20,3 +20,15 @@ sudo service redis-server stop
 
 # to install redis for windows
 https://redis.io/docs/install/install-redis/install-redis-on-windows/
+
+# to install mailhog, follow the link
+https://github.com/mailhog/MailHog
+
+# for running the mailhog app on wsl, use this command
+~/go/bin/MailHog
+
+# to start the celery workers on separate process, run this command
+celery -A main.celery_app worker -l info
+
+# to start the celery beat/timer on separate process, run this command
+celery -A main.celery_app beat --max-interval 1 -l info

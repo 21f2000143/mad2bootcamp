@@ -46,7 +46,7 @@ export default {
     async logout() {
         const res = await fetch('/user-logout', {
           headers: {
-            'Authentication-Token': this.authToken,
+            'Authentication-Token': this.is_login,
             'Content-Type': 'application/json',
           },
         })

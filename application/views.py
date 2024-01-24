@@ -3,7 +3,7 @@ from flask_security import auth_required, roles_required
 # from werkzeug.security import check_password_hash
 from flask_restful import marshal, fields
 import flask_excel as excel
-from flask_security import login_user, logout_user
+from flask_security import login_user, logout_user, current_user
 from celery.result import AsyncResult
 from .tasks import create_resource_csv
 from .models import User, db, StudyResource
@@ -25,10 +25,12 @@ def user_login():
         return jsonify({"message": "User Not Found"}), 404
     if verify_password(data.get('password'), user.password):
         login_user(user)
+        print("login auth token", user.get_auth_token())
         return jsonify({"token": user.get_auth_token(), "email": user.email, "role": user.roles[0].name})
     else:
         return jsonify({"message": "Wrong Password"}), 400
 @app.get('/user-logout')
+@auth_required("token")
 def user_logout():
     logout_user()
     return jsonify({"message": "Logged Out"}), 200

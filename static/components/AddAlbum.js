@@ -18,6 +18,7 @@ export default {
         genre: null,
       },
       error: null,
+      authToken: localStorage.getItem('auth-token')
     }
   },
   methods: {
@@ -26,6 +27,7 @@ export default {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authentication-Token': this.authToken,
         },
         body: JSON.stringify(this.album),
       })
