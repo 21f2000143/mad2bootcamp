@@ -1,8 +1,6 @@
-from flask import current_app as app, jsonify, request, render_template, send_file
+from flask import current_app as app, jsonify, request, render_template, make_response
 from flask_security import auth_required, roles_required
-# from werkzeug.security import check_password_hash
 from flask_restful import marshal, fields
-import flask_excel as excel
 from flask_security import login_user, logout_user
 from .models import User, db, StudyResource
 from .sec import datastore
@@ -10,7 +8,8 @@ from flask_security import verify_password
 from flask_security import hash_password
 from application.tasks import create_resource_csv
 from flask_security import hash_password
-
+import csv
+import io
 from celery.result import AsyncResult
 
 @app.post('/user-login')
@@ -129,12 +128,20 @@ def download_csv():
     return jsonify({"task-id": task.id})
 
 
-@app.get('/get-csv/<string:task_id>')
+@app.get('/get-csv/<task_id>')
 def get_csv(task_id):
     res = AsyncResult(task_id)
     if res.ready():
-        filename = res.result
-        return send_file(filename, as_attachment=True)
+        with open('test.csv', 'r') as file:
+            csv_reader = csv.reader(file)
+            csv_data = list(csv_reader)
+            csv_buffer = io.StringIO()
+            csv_writer = csv.writer(csv_buffer)
+            csv_writer.writerows(csv_data)
+            csv_buffer.seek(0)  
+        response = make_response(csv_buffer.getvalue())
+        response.headers['Content-Disposition'] = 'attachment; filename=test.csv'
+        response.headers['Content-Type'] = 'text/csv'
+        return response
     else:
         return jsonify({"message": "Task Pending"}), 404
-

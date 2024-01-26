@@ -15,3 +15,4 @@ class DevelopmentConfig(Config):
     CACHE_REDIS_HOST = "localhost"
     CACHE_REDIS_PORT = 6379
     CACHE_REDIS_DB = 3
+    REDIS_URL = "redis://localhost:6379"

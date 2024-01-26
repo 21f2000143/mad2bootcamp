@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personalized Greeting</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        text-align: center;
+        padding-top: 50px;
+      }
+      .greeting {
+        font-size: 24px;
+        color: #333;
+      }
+      .email {
+        font-size: 18px;
+        color: #666;
+      }
+      .cool-text {
+        font-size: 16px;
+        color: #008CBA;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="greeting">
+      Hello, <span class="cool-text">{{name}}</span>!
+    </div>
+    <div class="email">
+      Your email is <span class="cool-text">{{email}}</span>.
+    </div>
+    <p class="cool-text">This is a personalized greeting just for you!</p>
+  </body>
+</html>
