@@ -111,5 +111,10 @@ export default {
     } else {
       alert(data.message)
     }
+    const source = new EventSource("/stream");
+    source.addEventListener('user', event => {
+      let data = JSON.parse(event.data);
+      alert(data.message)
+    }, false);
   },
 }

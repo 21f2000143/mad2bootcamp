@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_security import SQLAlchemyUserDatastore, Security
+from flask_security import Security
 from application.models import *
 from config import DevelopmentConfig
 from application.resources import api
@@ -7,9 +7,11 @@ from application.sec import datastore
 from application.worker import celery_init_app
 import flask_excel as excel
 from celery.schedules import crontab
-from application.tasks import daily_reminder
+from application.tasks import daily_reminder, create_resource_csv
 from flask_security import hash_password
 from application.instances import cache
+from flask_sse import sse
+from celery.result import AsyncResult
 
 
 def create_app():
@@ -37,15 +39,23 @@ def create_app():
 
 app = create_app()
 celery_app = celery_init_app(app)
-
+app.config['REDIS_URL'] = 'redis://localhost:6379'
+celery_app.conf.update(
+    broker_url = 'redis://localhost:6379/0',
+    result_backend = 'redis://localhost:6379/1',
+    timezone = 'Asia/Kolkata',
+    broker_connection_retry_on_startup=True
+)
+celery_app.conf.timezone = 'Asia/Kolkata' 
 
 @celery_app.on_after_configure.connect
 def send_email(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=19, minute=55, day_of_month=20),
-        daily_reminder.s('narendra@email.com', 'Daily Test'),
+        crontab(minute='*/1'),
+        daily_reminder.s(),
     )
 
+app.register_blueprint(sse, url_prefix='/stream')
 
 if __name__ == '__main__':
     app.run(debug=True)

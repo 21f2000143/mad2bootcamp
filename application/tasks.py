@@ -4,6 +4,8 @@ import flask_excel as excel
 from .mail_service import send_message
 from .models import User, Role
 from jinja2 import Template
+from flask_sse import sse
+
 
 
 @shared_task(ignore_result=False)
@@ -23,8 +25,9 @@ def create_resource_csv():
 @shared_task(ignore_result=True)
 def daily_reminder(to, subject):
     users = User.query.filter(User.roles.any(Role.name == 'admin')).all()
+    sse.publish({"message": "Monthly Report sent"},type='user')
     for user in users:
-        with open('test.html', 'r') as f:
+        with open('application/test.html', 'r') as f:
             template = Template(f.read())
             send_message(user.email, subject,
                          template.render(email=user.email))
